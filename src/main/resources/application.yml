@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: spring_my_application_cognito
+  security:
+    oauth2:
+      client:
+        registration:
+          cognito:
+            poolId: <YOUR_COGNITO_APP_CLIENT_ID>
+            clientId: <YOUR_COGNITO_APP_CLIENT_SECRET>
+            clientSecret: 1b5gbc7d6eas3oikq1mtlljmobge7eqvfng1kkjd82o75pkakv51
+            scope: openid
+            redirect-uri: http://localhost:8080/login/oauth2/code/cognito
+            clientName: aws_security_app_yh
+        provider:
+          cognito:
+            issuerUri: https://cognito-idp.<YOUR_AWS_REGION>.amazonaws.com/<YOUR_USER_POOL_ID>
+            user-name-attribute: username
+            logging:
+              level:
+                org.springframework.beans.factory: DEBUG

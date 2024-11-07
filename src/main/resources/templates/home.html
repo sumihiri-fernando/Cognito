@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage Design</title>
+  <style>
+    /* Styles here */
+  </style>
+</head>
+<style>* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.section-one {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.2)), url(https://images.unsplash.com/photo-1515612148533-6247582c12c7?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NjE4MzU4NzQ&ixlib=rb-1.2.1&q=80);
+  background-size: cover;
+  background-position: center;
+  filter: brightness();
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  text-align: center;
+  color: white;
+}
+
+h1 {
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  font-size: 4rem;
+  font-weight: 400;
+}
+
+p {
+  font-size: 1.15rem;
+  letter-spacing: 3px;
+  margin: 20px 0 40px;
+}
+
+.home-button {
+  color: white;
+  text-decoration: none;
+  border: 2px white solid;
+  padding: 10px 15px;
+}
+
+.home-button:hover,
+.home-button:focus {
+  background: hsl(0, 100%, 100%, .2);
+  outline: none;
+}
+
+.section-two {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.container-two {
+  display: flex;
+  padding: 50px;
+  gap: 20px;
+  width: 100%;
+}
+
+.content h1 {
+  font-size: 2.75rem;
+}
+
+.content h1::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 5px;
+  background: #D1A370;
+}
+
+.content p {
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+
+.content-image img {
+  width: 300px;
+  object-fit: scale-down;
+}
+
+@media (max-width: 700px) {
+  .section-two {
+    height: 100%;
+  }
+  .container-two {
+    flex-direction: column;
+    height: 100%;
+  }
+}
+
+footer {
+  width: 100%;
+  background: #212121;
+  color: white;
+  padding: 25px;
+  text-align: center;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: center;
+}
+
+.footer-content {
+  margin: 0 50px 0;
+}
+
+.footer-content svg {
+  width: 50px;
+  fill: white;
+}
+
+.footer-content h6 {
+  font-size: 1.2rem;
+  font-weight: lighter;
+  margin-bottom: 25px;
+  color: #D1A370;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.footer-content ul {
+  list-style: none;
+}
+
+.footer-content ul li {
+  margin: 25px 0;
+}
+
+.footer-content ul li a {
+  text-decoration: none;
+  color: white;
+}
+
+.footer-content ul li a:hover,
+.footer-content ul li a:focus {
+  color: hsl(32, 51%, 63%, 0.7);
+}
+
+@media (max-width: 600px) {
+  .footer-container {
+    flex-direction: column;
+  }
+}
+
+
+
+</style>
+<body>
+
+<section class="section-one">
+  <div class="container">
+    <h1>Welcome, <span th:text="${#authentication.name}"></span>!</h1>
+    <a  sec:authorize="isAnonymous()" class="home-button" href="/signup">
+      Login and Register
+    </a>
+
+    <a  sec:authorize="isAuthenticated()" class="home-button" href="/logout">
+      Logout
+    </a>
+  </div>
+</section>
+
+<section class="section-two" sec:authorize="isAuthenticated()">
+  <div class="container-two">
+    <div class="container-two-content content">
+      <h1>User List</h1>
+      <table>
+        <!-- Table headers -->
+        <tbody>
+        <tr th:each="user : ${userList}">
+          <td th:text="${user.username}"></td>
+          <td>
+            <input type="hidden" th:name="username" th:value="${user.username}" />
+            <button type="button" th:unless="${#authentication.name == user.username}" th:onclick="deleteUser(this)" th:value="${user.username}">Delete</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+     </div>
+    <div class="container-two-content content-image">
+      <img src="https://images.unsplash.com/photo-1659269661337-7ee76a7645b5?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2NjE4ODcwODY&ixlib=rb-1.2.1&q=80">
+    </div>
+  </div>
+</section>
+
+
+<script>
+  function deleteUser(button) {
+    var sub = button.getAttribute('value');
+    console.log(sub)
+
+    fetch(`/delete-user/${sub}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          // Reload the page to reflect changes
+          location.reload();
+          console.log(`User ${sub} deleted successfully.`);
+        } else {
+          console.error(`Failed to delete user ${sub}.`);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+</script>
+</body>
+
+</html>
